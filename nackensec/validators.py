@@ -82,7 +82,6 @@ def is_valid_personnummer(raw: str) -> bool:
         return False
 
     # Parse YYMMDDXXXX
-    yy = int(digits[0:2])
     mm = int(digits[2:4])
     dd = int(digits[4:6])
 
@@ -127,7 +126,5 @@ def is_valid_organisationsnummer(raw: str) -> bool:
     if int(digits[2]) < 2:
         return False
 
-    try:
-        return luhn_check(digits)
-    except ValueError:
-        return False
+    # digits is always 10 decimal chars from the regex match above
+    return luhn_check(digits)

@@ -13,7 +13,8 @@ class TestLuhnCheck:
     """Test the raw Luhn-10 checksum algorithm."""
 
     def test_valid_personnummer_digits(self):
-        # 8501011236 — valid check digit for 850101123X (Skatteverket algorithm)
+        # 8501011236 — correct check digit for 850101123X per Skatteverket algorithm
+        # (plan originally specified 8501011234 which had an incorrect check digit)
         assert luhn_check("8501011236") is True
 
     def test_invalid_checksum(self):
