@@ -1,0 +1,72 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    - cron: "0 4 * * *"  # 04:00 UTC varje natt
+  workflow_dispatch:      # manuell trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: Sync with cisco-ai-defense/skill-scanner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/cisco-ai-defense/skill-scanner.git || true
+          git fetch upstream main
+
+      - name: Check for new upstream commits
+        id: check
+        run: |
+          BEHIND=$(git rev-list --count HEAD..upstream/main)
+          echo "behind=$BEHIND" >> $GITHUB_OUTPUT
+          echo "Upstream är $BEHIND commits före"
+
+      - name: Create sync branch and PR
+        if: steps.check.outputs.behind != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="upstream-sync/$(date +%Y-%m-%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+          git merge upstream/main --no-edit -m "chore: sync with cisco-ai-defense/skill-scanner $(date +%Y-%m-%d)" || {
+            # Konflikter finns — pusha ändå så att PR skapas för manuell lösning
+            git add -A
+            git commit -m "chore: sync upstream (konflikter kvar — lös manuellt)" || true
+          }
+
+          git push origin "$BRANCH"
+
+          BEHIND=${{ steps.check.outputs.behind }}
+          gh pr create \
+            --title "chore: upstream sync $(date +%Y-%m-%d) ($BEHIND nya commits)" \
+            --body "$(cat <<'EOF'
+          ## Upstream sync
+
+          Automatisk sync från [cisco-ai-defense/skill-scanner](https://github.com/cisco-ai-defense/skill-scanner).
+
+          **Tryck Merge om testerna är gröna.** Om det finns konflikter i `pyproject.toml`:
+          - Behåll `name`, `version`, `authors`, `license`, `urls` från NäckenSec
+          - Ta Ciscos uppdateringar för `dependencies` och `classifiers`
+
+          Genererad av upstream-sync workflow.
+          EOF
+          )" \
+            --base main \
+            --head "$BRANCH"
+
+      - name: Ingen sync behövs
+        if: steps.check.outputs.behind == '0'
+        run: echo "Redan synkad med upstream — ingen PR skapas"
