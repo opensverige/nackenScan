@@ -1,4 +1,43 @@
-# Skill Scanner
+# NäckenSec Scan
+
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Version](https://img.shields.io/github/v/tag/opensverige/nackensec-scan?label=version&color=green)](https://github.com/opensverige/nackensec-scan/releases)
+[![Upstream](https://img.shields.io/badge/upstream-cisco%20skill--scanner-049fd9?logo=cisco)](https://github.com/cisco-ai-defense/skill-scanner)
+[![opensverige.se](https://img.shields.io/badge/opensverige.se-AI%20community-black)](https://opensverige.se)
+
+**Swedish AI agent security scanner.** Fork av [Cisco skill-scanner](https://github.com/cisco-ai-defense/skill-scanner) med svensk PII-detektion, Fortnox-medvetenhet och EU AI Act compliance.
+
+```bash
+# Installera
+pip install git+https://github.com/opensverige/nackensec-scan.git
+
+# Skanna en agent (svenska fynd på svenska)
+nackensec-scan scan /path/to/agent --lang sv
+```
+
+### Vad NäckenSec lägger till
+
+| Funktion | Detaljer |
+|----------|---------|
+| **Personnummer (Luhn-10)** | Skatteverket-validering, HIGH/INFO baserat på checksum |
+| **Samordningsnummer** | Koordinationsnummer (dag + 60) |
+| **Organisationsnummer** | Luhn-validerat, MEDIUM-allvarlighet |
+| **Svenska bankuppgifter** | Bankgiro, Plusgiro, IBAN SE, clearingnummer |
+| **Fortnox API-riskmap** | Tiered risknivåer för 15+ Fortnox-endpoints |
+| **Svenska prompt injections** | 40+ svenska + svengelska mönster |
+| **EU AI Act compliance** | Art. 5 (förbjudet), Art. 9-15 (högrisk), Art. 50 (AI-identifiering) |
+| **Svenska fynd på svenska** | `--lang sv` ger hela rapporten på svenska |
+
+### Licensiering
+
+NäckenSec-tilläggen licensieras under **AGPL-3.0**. Se [LICENSE](LICENSE) för den dubbla licensstrukturen.
+Kommersiell licensiering: **licensing@opensverige.se**
+
+**Built on top of [Cisco skill-scanner](https://github.com/cisco-ai-defense/skill-scanner) (Apache 2.0)** — se [THIRD_PARTY.md](THIRD_PARTY.md) för fullständig attribution.
+
+---
+
+# Skill Scanner (upstream)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)

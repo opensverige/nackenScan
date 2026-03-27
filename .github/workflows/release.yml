@@ -1,33 +1,26 @@
-name: "Publish to PyPI"
+name: "Release"
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (must match a git tag, e.g., 0.2.1)'
+        description: "Version tag to release (e.g. v0.1.0)"
         required: true
         type: string
 
 permissions:
-  contents: read
+  contents: write  # needed to create GitHub Release
 
 jobs:
-  pypi-publish:
-    name: Upload release to PyPI
+  build:
+    name: Build distribution
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    environment:
-      name: pypi
-      url: https://pypi.org/p/cisco-ai-skill-scanner
-    permissions:
-      id-token: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.version }}
           fetch-depth: 0
 
       - name: Install uv
@@ -36,8 +29,96 @@ jobs:
       - name: Install Python 3.12
         run: uv python install 3.12
 
-      - name: Build
+      - name: Build wheel and sdist
         run: uv build
 
-      - name: Publish package distributions to PyPI
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  github-release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            dist/* \
+            --title "NäckenSec ${{ steps.version.outputs.tag }}" \
+            --notes "$(cat <<'EOF'
+          ## NäckenSec ${{ steps.version.outputs.tag }}
+
+          Fork av [Cisco skill-scanner](https://github.com/cisco-ai-defense/skill-scanner) med svensk AI-agentsäkerhet.
+
+          ### Installera
+
+          ```bash
+          pip install git+https://github.com/opensverige/nackensec-scan.git@${{ steps.version.outputs.tag }}
+          ```
+
+          ### Vad ingår
+
+          - Svensk PII-detektion (personnummer Luhn-10, orgnummer, bankgiro, telefon)
+          - Fortnox API endpoint risk map (15+ endpoints, 3 risknivåer)
+          - Svenska + svengelska prompt injection YARA-regler (40+ mönster)
+          - EU AI Act compliance (Art. 5, 9-15, 50)
+          - `--lang sv` för svenska rapporter
+          - AGPL-3.0 licensiering
+
+          Se [NACKENSEC.md](https://github.com/opensverige/nackensec-scan/blob/main/NACKENSEC.md) för fullständig dokumentation.
+
+          **Kommersiell licensiering:** licensing@opensverige.se
+          EOF
+          )"
+
+  pypi-publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/nackensec-scan
+    permissions:
+      id-token: write  # Required for OIDC trusted publishing
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        # Uses OIDC trusted publishing — no PYPI_TOKEN needed.
+        # To set up: go to pypi.org → nackensec-scan → Publishing → add
+        # GitHub trusted publisher: opensverige/nackensec-scan, workflow: release.yml
+        #
+        # If you prefer token-based auth instead, uncomment:
+        # with:
+        #   password: ${{ secrets.PYPI_TOKEN }}

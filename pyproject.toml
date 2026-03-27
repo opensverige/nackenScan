@@ -3,15 +3,15 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "cisco-ai-skill-scanner"
+name = "nackensec-scan"
 dynamic = ["version"]
-description = "Security scanner for Agent Skills packages - Detects prompt injection, data exfiltration, and malicious code"
+description = "Swedish AI agent security scanner — fork of Cisco skill-scanner with Swedish PII detection, Fortnox awareness and EU AI Act compliance"
 authors = [
-    {name = "Cisco"},
+    {name = "OpenSverige", email = "hello@opensverige.se"},
 ]
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "Apache-2.0"}
+license = {text = "AGPL-3.0"}
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -112,11 +112,11 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/cisco-ai-defense/skill-scanner"
-Documentation = "https://github.com/cisco-ai-defense/skill-scanner#readme"
-Repository = "https://github.com/cisco-ai-defense/skill-scanner"
-Issues = "https://github.com/cisco-ai-defense/skill-scanner/issues"
-Changelog = "https://github.com/cisco-ai-defense/skill-scanner/releases"
+Homepage = "https://opensverige.se"
+Repository = "https://github.com/opensverige/nackensec-scan"
+Issues = "https://github.com/opensverige/nackensec-scan/issues"
+Changelog = "https://github.com/opensverige/nackensec-scan/releases"
+Upstream = "https://github.com/cisco-ai-defense/skill-scanner"
 
 [project.scripts]
 skill-scanner = "skill_scanner.cli.cli:main"
