@@ -1,3 +1,7 @@
+# NäckenSec — Swedish AI Agent Security
+# Copyright (c) 2026 OpenSverige
+# License: AGPL-3.0 (see LICENSE-AGPL)
+# Commercial licensing: licensing@opensverige.se
 """Swedish ID number validators with Luhn-10 checksum verification."""
 
 from __future__ import annotations

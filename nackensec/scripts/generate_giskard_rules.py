@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# NäckenSec — Swedish AI Agent Security
+# Copyright (c) 2026 OpenSverige
+# License: AGPL-3.0 (see LICENSE-AGPL)
+# Commercial licensing: licensing@opensverige.se
 """
 Generate YARA rules from the Giskard-AI/prompt-injections dataset.
 
