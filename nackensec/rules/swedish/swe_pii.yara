@@ -15,6 +15,7 @@ rule swe_pii {
         classification = "pii"
         threat_type = "PII_EXPOSURE"
         remediation_sv = "Ta bort PII från agentdefinitionen. Använd miljövariabler eller SveaGuard mask_json för känslig data."
+        requires_luhn_validation = "pnr_no_dash,pnr_short,pnr_long — downstream analyzer must validate Luhn checksum before reporting HIGH findings"
 
     strings:
         // Personnummer: YYYYMMDD-XXXX or YYMMDD-XXXX (with or without dash)
@@ -23,8 +24,8 @@ rule swe_pii {
         $pnr_no_dash  = /\b\d{10}\b/
 
         // Samordningsnummer: day field is 61-91 (01-31 + 60)
-        $sam_long     = /\b(19|20)\d{4}(6[1-9]|7\d|8\d|91)[-]?\d{4}\b/
-        $sam_short    = /\b\d{4}(6[1-9]|7\d|8\d|91)[-]\d{4}\b/
+        $sam_long     = /\b(19|20)\d{4}(6[1-9]|[78]\d|9[01])[-]?\d{4}\b/
+        $sam_short    = /\b\d{4}(6[1-9]|[78]\d|9[01])[-]\d{4}\b/
 
         // Organisationsnummer: XXXXXX-XXXX (3rd digit >= 2) or with 16 prefix
         $orgnr        = /\b16[2-9]\d{5}[-]?\d{4}\b/
@@ -54,7 +55,7 @@ rule swe_pii {
         $clearing     = /\b[5-9]\d{3}\s+\d{7,10}\b/
 
         // Exclusions: common false positives
-        $comment      = /\/\/.*(personnummer|pnr|ssn|phone|tel)/i
+        $comment      = /\/\/.*(personnummer|pnr|ssn|phone|\btel\b)/i
         $test_label   = /\b(test|example|sample|demo|fake|dummy)\s+(pnr|personnummer|phone|tel)/i
         $yara_rule    = /\$pnr|personnummer.*regex/i
 

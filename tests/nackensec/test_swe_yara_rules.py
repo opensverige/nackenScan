@@ -43,6 +43,7 @@ class TestPersonnummerRules:
     def test_no_crash_on_plain_text(self, rules):
         result = matched_rule_ids(rules, "invoice number 12345")
         assert isinstance(result, set)
+        assert "swe_pii" not in result
 
 
 class TestOrganisationsnummerRules:
