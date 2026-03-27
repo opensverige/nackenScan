@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nackensec-scan"
-dynamic = ["version"]
+version = "0.1.0"
 description = "Swedish AI agent security scanner — fork of Cisco skill-scanner with Swedish PII detection, Fortnox awareness and EU AI Act compliance"
 authors = [
     {name = "OpenSverige", email = "hello@opensverige.se"},
