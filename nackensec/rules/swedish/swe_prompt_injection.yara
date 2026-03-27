@@ -7,6 +7,9 @@
 //  - Swedish translations of known injection patterns
 //  - Svengelska (Swedish-English code-switching) patterns
 //  - Patterns specific to Swedish regulatory context
+//
+// Note: `nocase` is ASCII-only in yara-x (ä/ö/å uppercase not handled).
+// SKILL.md files are typically mixed/lower case — all-caps Swedish is out of scope.
 //////////////////////////////////////////////////////////
 
 rule swe_prompt_injection {
